@@ -1,5 +1,5 @@
 import Foundation
-import MCP
+public import MCP
 
 public enum ToolHandlers {
 
@@ -55,14 +55,14 @@ public enum ToolHandlers {
 
     /// Result for every tool call when the databases couldn't be opened at startup.
     /// The server stays up so the client shows this instead of a bare disconnect.
-    public static func startupFailureResult(_ error: Error) -> CallTool.Result {
+    public static func startupFailureResult(_ error: any Error) -> CallTool.Result {
         errorResult(startupFailureMessage(error))
     }
 
     /// Actionable message for a startup failure. Most often this is macOS privacy
     /// protection (TCC) blocking the NetNewsWire container, which surfaces as a
     /// missing directory or "Operation not permitted".
-    static func startupFailureMessage(_ error: Error) -> String {
+    static func startupFailureMessage(_ error: any Error) -> String {
         let reason = (error as? NNWError)?.description ?? "The NetNewsWire databases could not be read."
         return """
             \(reason)

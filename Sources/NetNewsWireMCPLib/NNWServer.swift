@@ -23,7 +23,7 @@ public let serverVersion = "1.1.0"
 /// Starts the stdio server. A `.failure` database (e.g. no Full Disk Access) still
 /// starts the server: tools are listed, and each call returns an actionable error,
 /// so the client can show the fix instead of a bare "server disconnected".
-public func startServer(database: Result<NNWDatabase, Error>) async throws {
+public func startServer(database: Result<NNWDatabase, any Error>) async throws {
     let server = Server(
         name: "netnewswire-mcp",
         version: serverVersion,
