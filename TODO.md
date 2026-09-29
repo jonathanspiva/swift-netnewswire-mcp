@@ -3,6 +3,8 @@
 ## Now
 
 ## Later
+- [ ] Package as a Claude Code plugin (`.claude-plugin/plugin.json` with `mcpServers`) if it gets shared beyond personal use
+- [ ] Sign/notarize the `.mcpb` binary and publish it as a GitHub release asset
 - [ ] Expose feeds/articles as MCP Resources (addressable by URI) in addition to tools
 - [ ] Cursor-based pagination for the list tools (large accounts)
 
@@ -12,6 +14,9 @@
 - [x] Refresh for Swift 6.4 / macOS 27 / NetNewsWire 7.1.4: builds warning-free,
       98 tests pass (incl. live DB), live schema verified unchanged from 7.1.1,
       GRDB bumped to 7.11.1, CI on `actions/checkout@v7`, README Claude config fixed
+- [x] Claude best practices: server `title` in `initialize`, server stays up and
+      reports Full Disk Access fixes via tool errors instead of exiting, Claude
+      Desktop Extension (`mcpb/manifest.json` + `scripts/build-mcpb.sh`, validated in CI)
 - [x] Fix OPML folder tracking (folder context now scoped via an outline stack:
       cleared on `didEndElement`, so sibling folders, nested folders, and
       top-level feeds after a folder are labeled correctly)

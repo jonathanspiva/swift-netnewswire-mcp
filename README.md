@@ -42,7 +42,9 @@ The binary will be at `.build/release/netnewswire-mcp`.
 
 ## Configure
 
-With the Claude Code CLI (`--scope user` makes it available in every project):
+### Claude Code
+
+`--scope user` makes it available in every project:
 
 ```bash
 claude mcp add --scope user netnewswire -- /path/to/.build/release/netnewswire-mcp
@@ -50,7 +52,16 @@ claude mcp add --scope user netnewswire -- /path/to/.build/release/netnewswire-m
 
 Run `claude mcp list` to confirm it connects, or `/mcp` inside a session.
 
-For the Claude desktop app, add it to
+### Claude desktop app
+
+Build a Desktop Extension (`.mcpb`, needs Node for `npx`) and double-click it,
+or install it from Settings → Extensions → Advanced settings → Install Extension:
+
+```bash
+./scripts/build-mcpb.sh   # writes .build/netnewswire-mcp.mcpb
+```
+
+The bundle is built locally and unsigned. Alternatively, add the binary by hand to
 `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
@@ -67,14 +78,15 @@ For the Claude desktop app, add it to
 
 NetNewsWire keeps its databases inside a macOS app container, which the system
 protects with privacy controls (TCC). The server can only read it if the process
-that launches it has **Full Disk Access** — otherwise it exits at startup with
-`Operation not permitted`.
+that launches it has **Full Disk Access**. Without it the server still starts, but
+every tool call returns an error explaining how to grant access.
 
 Grant FDA to whichever app hosts your MCP client, then restart that app:
 
 - Running Claude Code from a terminal → System Settings → Privacy & Security →
   Full Disk Access → enable **Terminal** (or iTerm).
-- Another host (VS Code, the Claude desktop app) → grant FDA to that app instead.
+- The Claude desktop app → enable **Claude**.
+- Another host (e.g. VS Code) → grant FDA to that app instead.
 
 ## How it works
 

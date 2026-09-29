@@ -17,3 +17,5 @@ jobs:
         run: swift build
       - name: Test
         run: swift test
+      - name: Validate Desktop Extension manifest
+        run: npx --yes @anthropic-ai/mcpb validate mcpb/manifest.json

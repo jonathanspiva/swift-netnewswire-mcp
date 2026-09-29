@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "netnewswire-mcp",
+  "display_name": "NetNewsWire",
+  "version": "1.1.0",
+  "description": "Read-only access to your NetNewsWire feeds, articles, and search index.",
+  "long_description": "Reads NetNewsWire's local SQLite databases in read-only mode. Claude (the desktop app) needs Full Disk Access to read the NetNewsWire app container: System Settings, Privacy & Security, Full Disk Access.",
+  "author": {
+    "name": "Jonathan Spiva",
+    "url": "https://github.com/jonathanspiva"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jonathanspiva/swift-netnewswire-mcp"
+  },
+  "license": "MIT",
+  "server": {
+    "type": "binary",
+    "entry_point": "server/netnewswire-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/server/netnewswire-mcp",
+      "args": []
+    }
+  },
+  "tools": [
+    { "name": "list_accounts", "description": "List NetNewsWire accounts" },
+    { "name": "list_feeds", "description": "List subscribed feeds from OPML" },
+    { "name": "list_starred_articles", "description": "Starred articles with optional feed filter" },
+    { "name": "list_recent_articles", "description": "Recent articles by arrival date" },
+    { "name": "get_article", "description": "Full article content by ID" },
+    { "name": "search_articles", "description": "Full-text search over NetNewsWire's FTS4 index" },
+    { "name": "get_article_count", "description": "Total, starred, and unread counts" }
+  ],
+  "keywords": ["rss", "netnewswire", "feeds", "reader"],
+  "compatibility": {
+    "platforms": ["darwin"]
+  }
+}

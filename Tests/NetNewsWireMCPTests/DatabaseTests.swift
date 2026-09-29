@@ -796,3 +796,13 @@ func testLiveDatabaseQueriesSucceed() throws {
         Issue.record("expected text content")
     }
 }
+
+// MARK: - Desktop Extension Manifest
+
+@Test func testMCPBManifestVersionMatchesServer() throws {
+    let root = URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+    let data = try Data(contentsOf: root.appendingPathComponent("mcpb/manifest.json"))
+    let manifest = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+    #expect(manifest["version"] as? String == serverVersion)
+}
