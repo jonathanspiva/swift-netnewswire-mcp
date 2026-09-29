@@ -1,7 +1,7 @@
 # NetNewsWire MCP Server
 
 [![CI](https://github.com/jonathanspiva/swift-netnewswire-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/jonathanspiva/swift-netnewswire-mcp/actions/workflows/ci.yml)
-[![Swift 6.2](https://img.shields.io/badge/Swift-6.2-orange.svg)](https://swift.org)
+[![Swift 6.2+](https://img.shields.io/badge/Swift-6.2+-orange.svg)](https://swift.org)
 [![macOS 26+](https://img.shields.io/badge/macOS-26+-blue.svg)](https://developer.apple.com/macos/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-cc785c)](https://claude.ai/code)
@@ -29,8 +29,8 @@ markdown.
 ## Requirements
 
 - macOS 26+
-- Swift 6.2+ (builds on the Swift 6.3 toolchain in Xcode 26)
-- NetNewsWire (Mac App Store or direct download); tested against 7.1.1
+- Swift 6.2+ (tested with Swift 6.4 on macOS 27; CI runs the macOS 26 toolchain)
+- NetNewsWire (Mac App Store or direct download); tested against 7.1.4 (schema unchanged since 7.1.1)
 
 ## Build
 
@@ -42,22 +42,25 @@ The binary will be at `.build/release/netnewswire-mcp`.
 
 ## Configure
 
-Add to your Claude Code MCP config (`~/.claude/claude_desktop_config.json` or similar):
+With the Claude Code CLI (`--scope user` makes it available in every project):
+
+```bash
+claude mcp add --scope user netnewswire -- /path/to/.build/release/netnewswire-mcp
+```
+
+Run `claude mcp list` to confirm it connects, or `/mcp` inside a session.
+
+For the Claude desktop app, add it to
+`~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "netnewswire": {
-      "command": "/path/to/netnewswire-mcp"
+      "command": "/path/to/.build/release/netnewswire-mcp"
     }
   }
 }
-```
-
-Or, with the Claude Code CLI:
-
-```bash
-claude mcp add netnewswire /path/to/.build/release/netnewswire-mcp
 ```
 
 ## Full Disk Access
@@ -85,12 +88,12 @@ It auto-discovers all accounts and their databases on startup. Feed lists are pa
 
 ## Dependencies
 
-- [swift-sdk](https://github.com/modelcontextprotocol/swift-sdk) 0.12.1+ - MCP protocol implementation for Swift
-- [GRDB.swift](https://github.com/groue/GRDB.swift) 7.x - SQLite toolkit for Swift
+- [swift-sdk](https://github.com/modelcontextprotocol/swift-sdk) 0.12.1+ - MCP protocol implementation for Swift (supports spec 2025-11-25)
+- [GRDB.swift](https://github.com/groue/GRDB.swift) 7.11+ - SQLite toolkit for Swift
 
 ## Notes
 
-- Only tested with [Claude Code](https://docs.anthropic.com/en/docs/claude-code). It should work with any MCP client, but your mileage may vary.
+- Only tested with [Claude Code](https://code.claude.com/docs). It should work with any MCP client, but your mileage may vary.
 - This depends on NetNewsWire's internal database schema, which is not a public API and could change between versions. NetNewsWire 7.1 moved authors into an inline JSON column on `articles` (the old `authors`/`authorsLookup` tables are gone); this server reads the current layout.
 - Feed IDs are the XML URLs of the feeds, not UUIDs.
 - Dates are Unix timestamps (seconds since 1970).

@@ -9,6 +9,9 @@
 ## Never
 
 ## Done
+- [x] Refresh for Swift 6.4 / macOS 27 / NetNewsWire 7.1.4: builds warning-free,
+      98 tests pass (incl. live DB), live schema verified unchanged from 7.1.1,
+      GRDB bumped to 7.11.1, CI on `actions/checkout@v7`, README Claude config fixed
 - [x] Fix OPML folder tracking (folder context now scoped via an outline stack:
       cleared on `didEndElement`, so sibling folders, nested folders, and
       top-level feeds after a folder are labeled correctly)

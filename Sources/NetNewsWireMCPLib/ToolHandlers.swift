@@ -53,6 +53,26 @@ public enum ToolHandlers {
         }
     }
 
+    /// Result for every tool call when the databases couldn't be opened at startup.
+    /// The server stays up so the client shows this instead of a bare disconnect.
+    public static func startupFailureResult(_ error: Error) -> CallTool.Result {
+        errorResult(startupFailureMessage(error))
+    }
+
+    /// Actionable message for a startup failure. Most often this is macOS privacy
+    /// protection (TCC) blocking the NetNewsWire container, which surfaces as a
+    /// missing directory or "Operation not permitted".
+    static func startupFailureMessage(_ error: Error) -> String {
+        let reason = (error as? NNWError)?.description ?? "The NetNewsWire databases could not be read."
+        return """
+            \(reason)
+
+            If NetNewsWire is installed, the app that launched this server needs Full Disk Access: \
+            System Settings → Privacy & Security → Full Disk Access, enable Claude (desktop app) \
+            or your terminal (Claude Code), then restart that app.
+            """
+    }
+
     private static func errorResult(_ message: String) -> CallTool.Result {
         CallTool.Result(
             content: [.text(text: message, annotations: nil, _meta: nil)],

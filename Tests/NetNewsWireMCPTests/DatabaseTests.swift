@@ -770,3 +770,29 @@ func testLiveDatabaseQueriesSucceed() throws {
     // A fractional value is not a valid count; fall back to the default.
     #expect(ToolHandlers.resolveLimit(["limit": .double(25.7)], default: 50) == 50)
 }
+
+// MARK: - Startup Failure
+
+@Test func testStartupFailureResultExplainsFullDiskAccess() throws {
+    let error = NNWError.accountsNotFound("/nonexistent/Accounts")
+    let result = ToolHandlers.startupFailureResult(error)
+    #expect(result.isError == true)
+    if case .text(let text, _, _) = result.content.first {
+        #expect(text.contains("accounts directory not found"))
+        #expect(text.contains("Full Disk Access"))
+    } else {
+        Issue.record("expected text content")
+    }
+}
+
+@Test func testStartupFailureResultHidesNonNNWErrorDetails() throws {
+    let error = CocoaError(.fileReadNoPermission, userInfo: [NSFilePathErrorKey: "/private/secret/path"])
+    let result = ToolHandlers.startupFailureResult(error)
+    #expect(result.isError == true)
+    if case .text(let text, _, _) = result.content.first {
+        #expect(!text.contains("/private/secret/path"))
+        #expect(text.contains("Full Disk Access"))
+    } else {
+        Issue.record("expected text content")
+    }
+}
