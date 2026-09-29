@@ -11,7 +11,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/modelcontextprotocol/swift-sdk", from: "0.12.1"),
-        .package(url: "https://github.com/groue/GRDB.swift", from: "7.0.0"),
+        .package(url: "https://github.com/groue/GRDB.swift", from: "7.11.0"),
     ],
     targets: [
         .target(
