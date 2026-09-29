@@ -1,7 +1,7 @@
 # NetNewsWire MCP Server
 
 [![CI](https://github.com/jonathanspiva/swift-netnewswire-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/jonathanspiva/swift-netnewswire-mcp/actions/workflows/ci.yml)
-[![Swift 6.2+](https://img.shields.io/badge/Swift-6.2+-orange.svg)](https://swift.org)
+[![Swift 6.4](https://img.shields.io/badge/Swift-6.4-orange.svg)](https://swift.org)
 [![macOS 26+](https://img.shields.io/badge/macOS-26+-blue.svg)](https://developer.apple.com/macos/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-cc785c)](https://claude.ai/code)
@@ -29,7 +29,7 @@ markdown.
 ## Requirements
 
 - macOS 26+
-- Swift 6.2+ (tested with Swift 6.4 on macOS 27; CI runs the macOS 26 toolchain)
+- Swift 6.4+ (Xcode 27, or the swift.org 6.4 toolchain on macOS 26)
 - NetNewsWire (Mac App Store or direct download); tested against 7.1.4 (schema unchanged since 7.1.1)
 
 ## Build
@@ -39,6 +39,19 @@ swift build -c release
 ```
 
 The binary will be at `.build/release/netnewswire-mcp`.
+
+## Test
+
+```bash
+swift test                          # 116 tests, no NetNewsWire install needed
+swift test --enable-code-coverage   # ~98% line coverage
+```
+
+Tests run against a fixture database that mirrors NetNewsWire's schema, and drive
+the real server over the MCP SDK's in-memory transport (initialize handshake,
+tool listing, and a check that every tool's `structuredContent` matches its
+declared `outputSchema`). If NetNewsWire is installed and the terminal has Full
+Disk Access, one extra test validates the queries against your live database.
 
 ## Configure
 

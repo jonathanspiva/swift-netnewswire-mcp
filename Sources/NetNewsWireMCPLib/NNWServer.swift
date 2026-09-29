@@ -24,6 +24,16 @@ public let serverVersion = "1.1.0"
 /// starts the server: tools are listed, and each call returns an actionable error,
 /// so the client can show the fix instead of a bare "server disconnected".
 public func startServer(database: Result<NNWDatabase, any Error>) async throws {
+    let server = await makeServer(database: database)
+    try await server.start(transport: StdioTransport())
+
+    log("NetNewsWire MCP server started")
+    await server.waitUntilCompleted()
+}
+
+/// Builds a server with all handlers registered but not yet started, so tests
+/// can drive it over an in-memory transport.
+func makeServer(database: Result<NNWDatabase, any Error>) async -> Server {
     let server = Server(
         name: "netnewswire-mcp",
         version: serverVersion,
@@ -52,11 +62,7 @@ public func startServer(database: Result<NNWDatabase, any Error>) async throws {
         }
     }
 
-    let transport = StdioTransport()
-    try await server.start(transport: transport)
-
-    log("NetNewsWire MCP server started")
-    await server.waitUntilCompleted()
+    return server
 }
 
 /// Log to stderr (stdout is reserved for JSON-RPC protocol)
