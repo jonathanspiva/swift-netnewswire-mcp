@@ -15,7 +15,7 @@
 - [x] Swift 6.4: `swift-tools-version:6.4`, all upcoming features the 6.4 compiler
       offers plus strict memory safety, explicit `public import`s; CI installs the
       swift.org 6.4 toolchain on the macOS 26 runner
-- [x] Test coverage from ~84% to ~98% of lines (116 tests): protocol-level tests via
+- [x] Test coverage from ~88% to ~98% of lines (116 tests): protocol-level tests via
       the in-memory transport, outputSchema contract check for every tool,
       discovery failures, error messages, corrupt-DB handling
 - [x] Refresh for Swift 6.4 / macOS 27 / NetNewsWire 7.1.4: builds warning-free,
