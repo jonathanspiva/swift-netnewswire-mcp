@@ -1,5 +1,5 @@
-import Foundation
-import GRDB
+public import Foundation
+public import GRDB
 import Synchronization
 
 // MARK: - Database Records
@@ -153,7 +153,7 @@ public final class NNWDatabase: Sendable {
                 JOIN statuses s ON a.articleID = s.articleID
                 WHERE s.starred = 1
                 """
-            var arguments: [DatabaseValueConvertible] = []
+            var arguments: [any DatabaseValueConvertible] = []
             if let feedID {
                 sql += " AND a.feedID = ?"
                 arguments.append(feedID)
@@ -174,7 +174,7 @@ public final class NNWDatabase: Sendable {
                 JOIN statuses s ON a.articleID = s.articleID
                 WHERE 1=1
                 """
-            var arguments: [DatabaseValueConvertible] = []
+            var arguments: [any DatabaseValueConvertible] = []
             if starredOnly {
                 sql += " AND s.starred = 1"
             }
@@ -304,7 +304,8 @@ final class OPMLParser: NSObject, XMLParserDelegate {
 
     func parse() -> [FeedInfo] {
         let parser = XMLParser(data: data)
-        parser.delegate = self
+        // `delegate` is unretained; safe because `self` outlives the local parser.
+        unsafe parser.delegate = self
         parser.parse()
         return feeds
     }

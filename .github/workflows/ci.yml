@@ -10,8 +10,22 @@ jobs:
   build-and-test:
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      # Hosted runners top out at Xcode 26.x (Swift 6.3), so install the
+      # swift.org 6.4 toolchain and select it via TOOLCHAINS.
+      - name: Install Swift 6.4
+        run: |
+          curl -fsSLo "$RUNNER_TEMP/swift.pkg" \
+            https://download.swift.org/swift-6.4.0-release/xcode/swift-6.4.0-RELEASE/swift-6.4.0-RELEASE-osx.pkg
+          sudo installer -pkg "$RUNNER_TEMP/swift.pkg" -target /
+          TC=$(/usr/libexec/PlistBuddy -c "Print CFBundleIdentifier" \
+            /Library/Developer/Toolchains/swift-6.4.0-RELEASE.xctoolchain/Info.plist)
+          echo "TOOLCHAINS=$TC" >> "$GITHUB_ENV"
+      - name: Swift version
+        run: swift --version
       - name: Build
         run: swift build
       - name: Test
         run: swift test
+      - name: Validate Desktop Extension manifest
+        run: npx --yes @anthropic-ai/mcpb validate mcpb/manifest.json

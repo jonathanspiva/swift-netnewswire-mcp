@@ -1,5 +1,5 @@
 import Foundation
-import MCP
+public import MCP
 
 // MARK: - Tool Definitions
 

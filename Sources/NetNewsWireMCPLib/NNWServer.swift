@@ -18,10 +18,26 @@ let serverInstructions = """
     - Every tool is read-only; nothing is ever modified.
     """
 
-public func startServer(database: NNWDatabase) async throws {
+public let serverVersion = "1.1.0"
+
+/// Starts the stdio server. A `.failure` database (e.g. no Full Disk Access) still
+/// starts the server: tools are listed, and each call returns an actionable error,
+/// so the client can show the fix instead of a bare "server disconnected".
+public func startServer(database: Result<NNWDatabase, any Error>) async throws {
+    let server = await makeServer(database: database)
+    try await server.start(transport: StdioTransport())
+
+    log("NetNewsWire MCP server started")
+    await server.waitUntilCompleted()
+}
+
+/// Builds a server with all handlers registered but not yet started, so tests
+/// can drive it over an in-memory transport.
+func makeServer(database: Result<NNWDatabase, any Error>) async -> Server {
     let server = Server(
         name: "netnewswire-mcp",
-        version: "1.0.0",
+        version: serverVersion,
+        title: "NetNewsWire",
         instructions: serverInstructions,
         capabilities: .init(tools: .init(listChanged: false))
     )
@@ -34,18 +50,19 @@ public func startServer(database: NNWDatabase) async throws {
     }
 
     await server.withMethodHandler(CallTool.self) { params in
-        ToolHandlers.handleCall(
-            name: params.name,
-            arguments: params.arguments,
-            database: database
-        )
+        switch database {
+        case .success(let database):
+            ToolHandlers.handleCall(
+                name: params.name,
+                arguments: params.arguments,
+                database: database
+            )
+        case .failure(let error):
+            ToolHandlers.startupFailureResult(error)
+        }
     }
 
-    let transport = StdioTransport()
-    try await server.start(transport: transport)
-
-    log("NetNewsWire MCP server started")
-    await server.waitUntilCompleted()
+    return server
 }
 
 /// Log to stderr (stdout is reserved for JSON-RPC protocol)
