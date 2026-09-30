@@ -30,6 +30,11 @@ Results are sized to fit comfortably in Claude Code's default tool-output limit:
 list tools return at most 100 articles (default 50), and `get_article` returns at
 most 30,000 characters of body (default 20,000).
 
+If NetNewsWire wrote to the account database in the last minute (an iCloud sync or
+feed refresh may still be running), the list, search, and count tools add a note to
+the markdown and a `sync_warning` field to the structured output, since the results
+may be missing rows that are still arriving.
+
 ## Privacy
 
 Your NetNewsWire databases hold your private reading history: subscriptions,

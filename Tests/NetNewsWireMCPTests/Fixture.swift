@@ -43,6 +43,31 @@ struct Fixture {
         try Fixture.buildDatabase(at: "\(basePath)/2_iCloud/DB.sqlite3", populate: true)
         try Fixture.buildDatabase(at: "\(basePath)/OnMyMac/DB.sqlite3", populate: false)
         try fixtureOPML.write(toFile: "\(basePath)/2_iCloud/Subscriptions.opml", atomically: true, encoding: .utf8)
+        // A just-built DB would trigger the sync warning in every test; age it.
+        try setLastWrite(account: "2_iCloud", secondsAgo: 3600)
+        try setLastWrite(account: "OnMyMac", secondsAgo: 3600)
+    }
+
+    /// Backdate an account DB's modification time, as if NNW last wrote to it
+    /// `secondsAgo` seconds ago.
+    func setLastWrite(account: String, secondsAgo: TimeInterval) throws {
+        try FileManager.default.setAttributes(
+            [.modificationDate: Date.now.addingTimeInterval(-secondsAgo)],
+            ofItemAtPath: "\(basePath)/\(account)/DB.sqlite3"
+        )
+    }
+
+    /// Insert a status row with no matching article, like the ones NNW keeps
+    /// for articles it has purged.
+    func addOrphanStatus(id: String, read: Bool, starred: Bool) throws {
+        let queue = try DatabaseQueue(path: "\(basePath)/2_iCloud/DB.sqlite3")
+        try queue.write { db in
+            try db.execute(
+                sql: "INSERT INTO statuses (articleID, read, starred, dateArrived) VALUES (?, ?, ?, ?)",
+                arguments: [id, read, starred, T.a1]
+            )
+        }
+        try setLastWrite(account: "2_iCloud", secondsAgo: 3600)
     }
 
     func database() throws -> NNWDatabase {
@@ -69,6 +94,7 @@ struct Fixture {
                 )
             }
         }
+        try setLastWrite(account: "OnMyMac", secondsAgo: 3600)
     }
 
     func cleanup() {
