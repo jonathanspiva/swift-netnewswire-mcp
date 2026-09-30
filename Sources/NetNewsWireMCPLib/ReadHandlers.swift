@@ -43,7 +43,7 @@ extension ToolHandlers {
     ) throws -> CallTool.Result {
         let account = try database.resolveAccount(args["account"]?.stringValue)
         let feedID = args["feed_id"]?.stringValue
-        let limit = resolveLimit(args, default: 100)
+        let limit = resolveLimit(args, default: 50)
 
         let articles = try database.starredArticles(account: account, feedID: feedID, limit: limit)
         return result(

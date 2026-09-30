@@ -78,7 +78,7 @@ public enum Formatters {
         _ article: ArticleWithStatus,
         authors: [Author],
         preferText: Bool = false,
-        maxContentLength: Int = 50000
+        maxContentLength: Int = ToolHandlers.defaultContentLength
     ) -> String {
         var lines: [String] = ["# Article\n"]
         lines.append("- **ID**: `\(article.articleID)`")

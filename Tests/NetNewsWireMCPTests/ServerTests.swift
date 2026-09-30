@@ -243,3 +243,50 @@ enum SchemaCheck {
         #expect(problems.contains { $0.contains("$.tags[1]") })
     }
 }
+
+// MARK: - Output size budget
+//
+// Claude Code caps a tool result at 25k tokens by default (warning at 10k).
+// Every row / article body is sent twice (markdown + structuredContent), so check
+// the encoded result at the maximum limits stays under a budget, using a
+// conservative ~4 chars per token.
+
+@Suite struct `Output size budget` {
+    static let budgetChars = 80_000  // ≈ 20k tokens, headroom under the 25k cap
+
+    private func encodedSize(_ result: CallTool.Result) throws -> Int {
+        try JSONEncoder().encode(result).count
+    }
+
+    @Test(arguments: ["list_starred_articles", "list_recent_articles", "search_articles"])
+    func `list tools at the maximum limit stay under budget`(tool: String) throws {
+        try withFixture { fixture, db in
+            try fixture.addLargeArticles(count: ToolHandlers.maxLimit + 20)
+            var args: [String: Value] = ["account": "OnMyMac", "limit": .int(10_000)]
+            if tool == "search_articles" { args["query"] = "headline" }
+            let result = ToolHandlers.handleCall(name: tool, arguments: args, database: db)
+            #expect(result.isError != true)
+            guard case .object(let obj)? = result.structuredContent,
+                  case .array(let rows)? = obj["articles"] else {
+                Issue.record("expected articles array"); return
+            }
+            #expect(rows.count == ToolHandlers.maxLimit)
+            let size = try encodedSize(result)
+            #expect(size < Self.budgetChars, "\(tool): \(size) chars")
+        }
+    }
+
+    @Test func `get_article at the maximum content length stays under budget`() throws {
+        try withFixture { fixture, db in
+            try fixture.addLargeArticles(count: 1, bodyLength: 200_000)
+            let result = ToolHandlers.handleCall(
+                name: "get_article",
+                arguments: ["account": "OnMyMac", "article_id": "big-0", "max_content_length": .int(10_000_000)],
+                database: db
+            )
+            #expect(result.isError != true)
+            let size = try encodedSize(result)
+            #expect(size < Self.budgetChars, "get_article: \(size) chars")
+        }
+    }
+}

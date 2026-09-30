@@ -49,6 +49,28 @@ struct Fixture {
         try NNWDatabase(accountsBasePath: basePath)
     }
 
+    /// Fill the (otherwise empty) OnMyMac account with `count` starred articles
+    /// whose text fields are long, approximating a worst-case response size.
+    func addLargeArticles(count: Int, bodyLength: Int = 500) throws {
+        let queue = try DatabaseQueue(path: "\(basePath)/OnMyMac/DB.sqlite3")
+        let longTitle = String(repeating: "Long headline words ", count: 6)  // 120 chars
+        let body = String(repeating: "Body text with <b>markup</b>. ", count: bodyLength / 30 + 1)
+        try queue.write { db in
+            for i in 0..<count {
+                let feed = "https://feeds.example.com/very/long/feed/path/number-\(i % 10)/rss.xml"
+                try Fixture.insertArticle(
+                    db, id: "big-\(i)", feedID: feed,
+                    title: "\(longTitle)\(i)",
+                    contentHTML: body,
+                    url: "https://www.example.com/\(2026)/09/29/a-fairly-long-article-slug-that-goes-on-\(i)?utm_source=rss",
+                    datePublished: T.a1 + Double(i), dateArrived: T.a1 + Double(i),
+                    read: false, starred: true,
+                    searchTitle: "\(longTitle)\(i)", searchBody: "headline body text"
+                )
+            }
+        }
+    }
+
     func cleanup() {
         try? FileManager.default.removeItem(atPath: basePath)
     }
