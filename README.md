@@ -26,6 +26,18 @@ All tools are read-only. Nothing is modified. Each tool returns machine-readable
 `structuredContent` (with a declared `outputSchema`) alongside the human-readable
 markdown.
 
+Results are sized to fit comfortably in Claude Code's default tool-output limit:
+list tools return at most 100 articles (default 50), and `get_article` returns at
+most 30,000 characters of body (default 20,000).
+
+## Privacy
+
+Your NetNewsWire databases hold your private reading history: subscriptions,
+articles, and what you've starred and read. This server runs locally and never
+makes network requests itself, but everything a tool returns is passed to the MCP
+client you connect it to, and from there to that client's AI model. Only connect
+it to clients you trust with that data.
+
 ## Requirements
 
 - macOS 26+
@@ -43,7 +55,7 @@ The binary will be at `.build/release/netnewswire-mcp`.
 ## Test
 
 ```bash
-swift test                          # 116 tests, no NetNewsWire install needed
+swift test                          # 118 tests, no NetNewsWire install needed
 swift test --enable-code-coverage   # ~98% line coverage
 ```
 
@@ -122,6 +134,11 @@ It auto-discovers all accounts and their databases on startup. Feed lists are pa
 - This depends on NetNewsWire's internal database schema, which is not a public API and could change between versions. NetNewsWire 7.1 moved authors into an inline JSON column on `articles` (the old `authors`/`authorsLookup` tables are gone); this server reads the current layout.
 - Feed IDs are the XML URLs of the feeds, not UUIDs.
 - Dates are Unix timestamps (seconds since 1970).
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Please report security issues privately, as
+described in [SECURITY.md](SECURITY.md).
 
 ## License
 

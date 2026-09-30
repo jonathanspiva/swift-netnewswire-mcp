@@ -1,0 +1,53 @@
+name: Bug report
+description: Something isn't working
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This server reads NetNewsWire's internal database, which can change between
+        NetNewsWire releases, so versions matter. Please don't paste article content,
+        feed lists, or anything else from your own reading history.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead. Include the tool name and any error text.
+    validations:
+      required: true
+  - type: input
+    id: nnw-version
+    attributes:
+      label: NetNewsWire version
+      placeholder: "7.1.4"
+    validations:
+      required: true
+  - type: input
+    id: macos-version
+    attributes:
+      label: macOS version
+      placeholder: "27.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: client
+    attributes:
+      label: MCP client
+      options:
+        - Claude Code
+        - Claude desktop app (Desktop Extension)
+        - Claude desktop app (manual config)
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: server-version
+    attributes:
+      label: Server version or commit
+      placeholder: "v1.1.0"
+  - type: checkboxes
+    id: fda
+    attributes:
+      label: Full Disk Access
+      options:
+        - label: The app that launches the server (Terminal, Claude, etc.) has Full Disk Access

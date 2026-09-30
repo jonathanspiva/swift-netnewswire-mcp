@@ -12,6 +12,14 @@
 ## Never
 
 ## Done
+- [x] Public-repo hygiene: SECURITY.md (private vulnerability reporting),
+      CONTRIBUTING.md, bug-report issue form, Dependabot (actions + Swift), CI with
+      read-only token / timeout / concurrency / SHA-pinned checkout, README privacy
+      section; repo settings (ruleset on main, squash-only, auto-delete branches,
+      wiki/projects off, Dependabot alerts + security updates)
+- [x] Fit Claude Code's 25k-token tool-output cap: list max 500 → 100 (starred
+      default 100 → 50), `get_article` body default 50k → 20k, max 200k → 30k;
+      size-budget tests at the max limits
 - [x] Swift 6.4: `swift-tools-version:6.4`, all upcoming features the 6.4 compiler
       offers plus strict memory safety, explicit `public import`s; CI installs the
       swift.org 6.4 toolchain on the macOS 26 runner

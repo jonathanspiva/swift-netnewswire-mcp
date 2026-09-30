@@ -99,8 +99,10 @@ public enum ToolHandlers {
         return value
     }
 
-    /// Largest number of rows any query will return.
-    static let maxLimit = 500
+    /// Largest number of rows any query will return. Each row appears twice (markdown
+    /// table + structuredContent), so 100 rows keeps a response well under Claude
+    /// Code's default 25k-token tool-output cap.
+    static let maxLimit = 100
 
     /// Read an optional integer argument, accepting JSON numbers that arrive as
     /// either integers or integral doubles (e.g. `50` or `50.0`).
@@ -120,9 +122,11 @@ public enum ToolHandlers {
         return min(max(raw, 1), maxLimit)
     }
 
-    /// Default and maximum article-body length returned by `get_article`.
-    static let defaultContentLength = 50_000
-    static let maxContentLength = 200_000
+    /// Default and maximum article-body length returned by `get_article`. The body
+    /// is sent twice (markdown + structuredContent), so these bound the response
+    /// to roughly 10k and 15k tokens.
+    public static let defaultContentLength = 20_000
+    static let maxContentLength = 30_000
 
     /// Resolve and clamp the `max_content_length` argument into
     /// `100...maxContentLength`, so `get_article` can't return an unbounded body

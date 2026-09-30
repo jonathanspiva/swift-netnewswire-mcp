@@ -59,7 +59,7 @@ extension ToolHandlers {
                 ]),
                 "limit": .object([
                     "type": .string("integer"),
-                    "description": .string("Max articles to return (default: 100, max: 500)"),
+                    "description": .string("Max articles to return (default: 50, max: 100)"),
                 ]),
             ]),
             "additionalProperties": .bool(false),
@@ -85,7 +85,7 @@ extension ToolHandlers {
                 ]),
                 "limit": .object([
                     "type": .string("integer"),
-                    "description": .string("Max articles to return (default: 50, max: 500)"),
+                    "description": .string("Max articles to return (default: 50, max: 100)"),
                 ]),
                 "starred_only": .object([
                     "type": .string("boolean"),
@@ -120,7 +120,7 @@ extension ToolHandlers {
                 ]),
                 "max_content_length": .object([
                     "type": .string("integer"),
-                    "description": .string("Truncate the article body to this many characters (default: 50000, max: 200000)"),
+                    "description": .string("Truncate the article body to this many characters (default: 20000, max: 30000)"),
                 ]),
             ]),
             "required": .array([.string("article_id")]),
@@ -147,7 +147,7 @@ extension ToolHandlers {
                 ]),
                 "limit": .object([
                     "type": .string("integer"),
-                    "description": .string("Max results to return (default: 50, max: 500)"),
+                    "description": .string("Max results to return (default: 50, max: 100)"),
                 ]),
             ]),
             "required": .array([.string("query")]),
