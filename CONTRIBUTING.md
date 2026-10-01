@@ -31,15 +31,23 @@ never prints or records your data.
 ## Releasing
 
 Plugin users install from `main`, and the launcher downloads the release tarball
-for the version it pins. So every version on `main` must already have a published
-release. Do the release in one PR:
+for the version it pins, so publish the release right after the version bump
+merges. Until then, a plugin update to the new version fails to download.
 
-1. Bump the version everywhere above.
-2. Build the universal tarball and publish the GitHub release `vX.Y.Z` with
-   `netnewswire-mcp-X.Y.Z-macos-universal.tar.gz` and `SHA256SUMS.txt`.
-3. Set `SHA256` in `plugin/launch.sh` to the tarball's line in `SHA256SUMS.txt`,
-   test with `claude --plugin-dir .`, then merge. Plugin users get the new
-   version on their next plugin update.
+1. On a release branch, bump the version everywhere above.
+2. Build the assets from that branch:
+   - `./scripts/build-mcpb.sh`, then copy `.build/netnewswire-mcp.mcpb` to
+     `netnewswire-mcp-X.Y.Z.mcpb`
+   - `tar -czf netnewswire-mcp-X.Y.Z-macos-universal.tar.gz netnewswire-mcp`
+     (the binary at the archive root)
+   - `shasum -a 256` both files into `SHA256SUMS.txt`
+3. Set `SHA256` in `plugin/launch.sh` to the tarball's hash. The binary doesn't
+   depend on `launch.sh`, so the assets built in step 2 stay valid.
+4. Open a PR, wait for CI, and squash-merge.
+5. Immediately tag the merge commit `vX.Y.Z` and publish the GitHub release with
+   the three files from step 2 (`gh release create vX.Y.Z --target <sha> ...`).
+6. Check the plugin downloads it: run `plugin/launch.sh` with
+   `CLAUDE_PLUGIN_DATA` set to an empty directory.
 
 To test the plugin against a local build, set `NETNEWSWIRE_MCP_BIN` to the binary
 path before launching `claude --plugin-dir .`.

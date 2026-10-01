@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "netnewswire-mcp",
   "display_name": "NetNewsWire",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Read-only access to your NetNewsWire feeds, articles, and search index.",
   "long_description": "Reads NetNewsWire's local SQLite databases in read-only mode. Claude (the desktop app) needs Full Disk Access to read the NetNewsWire app container: System Settings, Privacy & Security, Full Disk Access.",
   "author": {

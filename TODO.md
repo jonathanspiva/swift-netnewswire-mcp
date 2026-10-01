@@ -22,12 +22,12 @@
   - [ ] Clear stderr hint when the download fails (offline, rate limit)
   - [ ] Evaluate pointing `mcpServers` at the release `.mcpb` URL instead
         (documented, but no one has confirmed native binaries keep their exec bit)
-- [ ] Cut v1.2.0 (sync warning + count fix, merged in #4) and bump the
-      plugin's `VERSION`/`SHA256` pin in the same PR (see CONTRIBUTING "Releasing")
 
 ## Never
 
 ## Done
+- [x] v1.2.0 release: sync warning, orphan-safe counts, Claude Code plugin; plugin
+      pin bumped to the v1.2.0 tarball
 - [x] Claude Code plugin: repo is its own marketplace (`.claude-plugin/`); the MCP
       command is `plugin/launch.sh`, which downloads the pinned release tarball on
       first run, verifies its SHA-256, and caches it in `${CLAUDE_PLUGIN_DATA}`.
