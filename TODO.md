@@ -4,7 +4,6 @@
 
 ## Later
 - [ ] Raise the minimum to macOS 27 once GitHub ships a `macos-27` runner image (still none as of 2026-09-30; only an Xcode 27 image on macOS 26)
-- [ ] Package as a Claude Code plugin (`.claude-plugin/plugin.json` with `mcpServers`) if it gets shared beyond personal use
 - [ ] Sign/notarize the `.mcpb` binary and publish it as a GitHub release asset
 - [ ] Expose feeds/articles as MCP Resources (addressable by URI) in addition to tools
 - [ ] Cursor-based pagination for the list tools (large accounts)
@@ -12,6 +11,10 @@
 ## Never
 
 ## Done
+- [x] Claude Code plugin: repo is its own marketplace (`.claude-plugin/`); the MCP
+      command is `plugin/launch.sh`, which downloads the pinned release tarball on
+      first run, verifies its SHA-256, and caches it in `${CLAUDE_PLUGIN_DATA}`.
+      Validated (`--strict`) in CI; tested end to end with `claude --plugin-dir`
 - [x] Sync warning: list, search, and count tools add a note + `sync_warning` when
       the account DB was written in the last 60s (an iCloud sync on 2026-09-30
       wrote one batch over ~16s and a mid-sync query missed the newest rows)
