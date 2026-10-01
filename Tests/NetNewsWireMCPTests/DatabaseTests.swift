@@ -754,3 +754,103 @@ func testLiveDatabaseQueriesSucceed() throws {
         }
     }
 }
+
+// MARK: - Orphan Statuses
+
+@Suite struct `Orphan status rows` {
+    @Test func `are excluded from starred and unread counts`() throws {
+        try withFixture { fixture, db in
+            try fixture.addOrphanStatus(id: "gone-1", read: false, starred: true)
+            try fixture.addOrphanStatus(id: "gone-2", read: false, starred: false)
+            let counts = try db.articleCounts(account: try db.resolveAccount("2_iCloud"))
+            #expect(counts.total == 3)
+            #expect(counts.starred == 2)
+            #expect(counts.unread == 1)
+        }
+    }
+
+    @Test func `counts agree with the starred list`() throws {
+        try withFixture { fixture, db in
+            try fixture.addOrphanStatus(id: "gone-1", read: true, starred: true)
+            let account = try db.resolveAccount("2_iCloud")
+            let starred = try db.starredArticles(account: account)
+            #expect(try db.articleCounts(account: account).starred == starred.count)
+        }
+    }
+}
+
+// MARK: - Sync Warning
+
+@Suite struct `Sync warning` {
+    @Test func `lastWriteDate reads the DB modification time`() throws {
+        try withFixture { fixture, db in
+            try fixture.setLastWrite(account: "2_iCloud", secondsAgo: 30)
+            let written = try #require(db.lastWriteDate(account: try db.resolveAccount("2_iCloud")))
+            #expect(abs(Date.now.timeIntervalSince(written) - 30) < 5)
+        }
+    }
+
+    @Test func `lastWriteDate is nil when the DB file is missing`() throws {
+        try withFixture { _, db in
+            let missing = NNWAccount(name: "Gone", path: "/nowhere", dbPath: "/nowhere/DB.sqlite3", opmlPath: nil)
+            #expect(db.lastWriteDate(account: missing) == nil)
+        }
+    }
+
+    @Test(arguments: [(10.0, true), (59.0, true), (61.0, false), (3600.0, false), (-30.0, false)])
+    func `warns only for writes in the last minute`(secondsAgo: Double, warns: Bool) throws {
+        try withFixture { fixture, db in
+            try fixture.setLastWrite(account: "2_iCloud", secondsAgo: secondsAgo)
+            let warning = ToolHandlers.syncWarning(account: try db.resolveAccount("2_iCloud"), database: db)
+            #expect((warning != nil) == warns)
+        }
+    }
+
+    @Test(arguments: ["list_starred_articles", "list_recent_articles", "get_article_count"])
+    func `recent write adds a note and sync_warning`(tool: String) throws {
+        try withFixture { fixture, db in
+            try fixture.setLastWrite(account: "2_iCloud", secondsAgo: 5)
+            let result = ToolHandlers.handleCall(name: tool, arguments: ["account": .string("2_iCloud")], database: db)
+            guard case .text(let markdown, _, _)? = result.content.first else {
+                Issue.record("expected text content")
+                return
+            }
+            #expect(markdown.hasPrefix("> **Note:** NetNewsWire wrote to this account's database"))
+            let warning = structuredObject(result)?["sync_warning"]?.stringValue
+            #expect(warning?.contains("may be incomplete") == true)
+
+            let schema = try #require(ToolHandlers.allTools.first { $0.name == tool }?.outputSchema)
+            let structured = try #require(result.structuredContent)
+            #expect(SchemaCheck.violations(of: structured, against: schema).isEmpty)
+        }
+    }
+
+    @Test func `search results carry the warning too`() throws {
+        try withFixture { fixture, db in
+            try fixture.setLastWrite(account: "2_iCloud", secondsAgo: 5)
+            let result = ToolHandlers.handleCall(
+                name: "search_articles",
+                arguments: ["account": .string("2_iCloud"), "query": .string("swift")],
+                database: db
+            )
+            #expect(structuredObject(result)?["sync_warning"] != nil)
+        }
+    }
+
+    @Test func `no warning for an idle database or for get_article`() throws {
+        try withFixture { fixture, db in
+            let idle = ToolHandlers.handleCall(
+                name: "list_starred_articles", arguments: ["account": .string("2_iCloud")], database: db
+            )
+            #expect(structuredObject(idle)?["sync_warning"] == nil)
+
+            try fixture.setLastWrite(account: "2_iCloud", secondsAgo: 5)
+            let article = ToolHandlers.handleCall(
+                name: "get_article",
+                arguments: ["account": .string("2_iCloud"), "article_id": .string("a1")],
+                database: db
+            )
+            #expect(structuredObject(article)?["sync_warning"] == nil)
+        }
+    }
+}

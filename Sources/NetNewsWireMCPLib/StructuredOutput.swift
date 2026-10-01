@@ -157,6 +157,9 @@ enum OutputSchemas {
     static let articleList = object([
         "articles": arrayOf(articleItem),
         "total": prop("integer"),
+        // Only present when NNW wrote to the DB in the last minute
+        // (see `ToolHandlers.syncWarning`), so never required.
+        "sync_warning": prop("string"),
     ], required: ["articles", "total"])
 
     static let articleDetail = object([
@@ -191,6 +194,7 @@ enum OutputSchemas {
         "total": prop("integer"),
         "starred": prop("integer"),
         "unread": prop("integer"),
+        "sync_warning": prop("string"),
     ], required: ["account", "total", "starred", "unread"])
 
     static let accountList = object([

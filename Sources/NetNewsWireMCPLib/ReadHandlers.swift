@@ -17,6 +17,38 @@ extension ToolHandlers {
         CallTool.Result(content: [text(markdown)], structuredContent: structured as Value?)
     }
 
+    /// A database write this recent suggests NetNewsWire is mid-sync or mid-refresh.
+    /// An iCloud sync was seen writing one batch of rows over ~16 seconds, and a
+    /// query in the middle returned only part of it.
+    static let syncWindow: TimeInterval = 60
+
+    /// A warning when the account database was written within `syncWindow`, so the
+    /// caller knows the results may be missing rows that are still arriving.
+    static func syncWarning(account: NNWAccount, database: NNWDatabase, now: Date = .now) -> String? {
+        guard let written = database.lastWriteDate(account: account) else { return nil }
+        let age = now.timeIntervalSince(written)
+        guard age >= 0, age < syncWindow else { return nil }
+        return "NetNewsWire wrote to this account's database \(Int(age)) seconds ago, so a sync "
+            + "or refresh may still be running and these results may be incomplete. "
+            + "Retry in a minute for complete results."
+    }
+
+    /// `result`, with a sync warning (if any) prepended to the markdown and added
+    /// to the structured output as `sync_warning`.
+    static func result(
+        _ markdown: String,
+        structured: Value,
+        account: NNWAccount,
+        database: NNWDatabase
+    ) -> CallTool.Result {
+        guard let warning = syncWarning(account: account, database: database),
+              case .object(var object) = structured else {
+            return result(markdown, structured: structured)
+        }
+        object["sync_warning"] = .string(warning)
+        return result("> **Note:** \(warning)\n\n\(markdown)", structured: .object(object))
+    }
+
     static func handleListAccounts(database: NNWDatabase) -> CallTool.Result {
         let accounts = database.listAccounts()
         return result(
@@ -48,7 +80,9 @@ extension ToolHandlers {
         let articles = try database.starredArticles(account: account, feedID: feedID, limit: limit)
         return result(
             Formatters.formatArticleTable(articles, title: "# Starred Articles\n"),
-            structured: StructuredOutput.articleList(articles)
+            structured: StructuredOutput.articleList(articles),
+            account: account,
+            database: database
         )
     }
 
@@ -70,7 +104,9 @@ extension ToolHandlers {
         let title = starredOnly ? "# Recent Starred Articles\n" : "# Recent Articles\n"
         return result(
             Formatters.formatArticleTable(articles, title: title),
-            structured: StructuredOutput.articleList(articles)
+            structured: StructuredOutput.articleList(articles),
+            account: account,
+            database: database
         )
     }
 
@@ -111,7 +147,9 @@ extension ToolHandlers {
         let articles = try database.searchArticles(account: account, query: query, limit: limit)
         return result(
             Formatters.formatArticleTable(articles, title: "# Search Results: \"\(query)\"\n"),
-            structured: StructuredOutput.articleList(articles)
+            structured: StructuredOutput.articleList(articles),
+            account: account,
+            database: database
         )
     }
 
@@ -123,7 +161,9 @@ extension ToolHandlers {
         let (total, starred, unread) = try database.articleCounts(account: account)
         return result(
             Formatters.formatCounts(account: account.name, total: total, starred: starred, unread: unread),
-            structured: StructuredOutput.counts(account: account.name, total: total, starred: starred, unread: unread)
+            structured: StructuredOutput.counts(account: account.name, total: total, starred: starred, unread: unread),
+            account: account,
+            database: database
         )
     }
 }

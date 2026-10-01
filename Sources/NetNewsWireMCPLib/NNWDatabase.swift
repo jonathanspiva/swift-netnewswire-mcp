@@ -233,10 +233,29 @@ public final class NNWDatabase: Sendable {
         let db = try openDatabase(for: account)
         return try db.read { db in
             let total = try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM articles") ?? 0
-            let starred = try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM statuses WHERE starred = 1") ?? 0
-            let unread = try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM statuses WHERE read = 0") ?? 0
+            // Join to articles: NNW keeps statuses for articles it has purged, and
+            // those orphans must not inflate the counts (the list tools join too).
+            let starred = try Int.fetchOne(db, sql: """
+                SELECT COUNT(*) FROM statuses s
+                JOIN articles a ON a.articleID = s.articleID
+                WHERE s.starred = 1
+                """) ?? 0
+            let unread = try Int.fetchOne(db, sql: """
+                SELECT COUNT(*) FROM statuses s
+                JOIN articles a ON a.articleID = s.articleID
+                WHERE s.read = 0
+                """) ?? 0
             return (total, starred, unread)
         }
+    }
+
+    /// When the account database was last written, from the modification time of
+    /// `DB.sqlite3` or its WAL, whichever is newer. NNW uses rollback-journal mode
+    /// today, but a WAL write wouldn't touch the main file. Nil if unreadable.
+    public func lastWriteDate(account: NNWAccount) -> Date? {
+        [account.dbPath, "\(account.dbPath)-wal"]
+            .compactMap { try? FileManager.default.attributesOfItem(atPath: $0)[.modificationDate] as? Date }
+            .max()
     }
 
     // MARK: - OPML Parsing
