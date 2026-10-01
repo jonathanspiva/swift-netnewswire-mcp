@@ -7,16 +7,22 @@
 - [ ] Sign/notarize the `.mcpb` binary and publish it as a GitHub release asset
 - [ ] Expose feeds/articles as MCP Resources (addressable by URI) in addition to tools
 - [ ] Cursor-based pagination for the list tools (large accounts)
-- [ ] Revisit how the plugin ships its binary. Today `plugin/launch.sh` downloads
-      the pinned release tarball and checks a SHA-256. Survey of the official
-      marketplace (2026-09-30, 14 locally bundled MCP configs out of 315 plugins):
-      none ship a compiled binary. MCP plugins use remote HTTP (5) or runtime
-      runners (`bun` 4, `npx` 2, `uvx`, `docker`, `php`); LSP plugins (incl.
-      `swift-lsp`) expect the binary on PATH. Still to check: third-party plugins
-      with Go/Rust/Swift binaries. Alternatives to weigh: Homebrew tap + PATH
-      command, npm package with a per-arch binary, or a marketplace `archive`
-      source
-- [ ] After #4 merges, cut v1.2.0 (sync warning + count fix) and bump the
+- [ ] Plugin launcher follow-ups. A 2026-09-30 survey found that the most common
+      pattern for compiled MCP servers (grafana/mcp-grafana, ory/lumen,
+      lukasmalkmus/moneymoney, etc.) is the one `plugin/launch.sh` already uses: a
+      launcher that downloads a version-pinned release asset into
+      `CLAUDE_PLUGIN_DATA`. Ours is stricter than all of them, since others check
+      the hash against the release's own checksums file or not at all. The
+      official marketplace ships no binaries (LSP plugins expect PATH; MCP plugins
+      use HTTP or `npx`/`uvx`/`bun`/`docker`). Worth adding:
+  - [ ] Prefer a `netnewswire-mcp` already on PATH (Homebrew/local build) before
+        downloading, like moneymoney
+  - [ ] SessionStart hook to pre-download in the background, so the first tool
+        call doesn't wait on the download
+  - [ ] Clear stderr hint when the download fails (offline, rate limit)
+  - [ ] Evaluate pointing `mcpServers` at the release `.mcpb` URL instead
+        (documented, but no one has confirmed native binaries keep their exec bit)
+- [ ] Cut v1.2.0 (sync warning + count fix, merged in #4) and bump the
       plugin's `VERSION`/`SHA256` pin in the same PR (see CONTRIBUTING "Releasing")
 
 ## Never
