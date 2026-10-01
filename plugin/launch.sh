@@ -11,8 +11,8 @@ set -eu
 
 # Keep VERSION in sync with `serverVersion` (a test enforces it). On release,
 # set SHA256 to the tarball's line in the release's SHA256SUMS.txt.
-VERSION="1.1.0"
-SHA256="b88d898e0cf96bf611d6f3945c13a1ab7c5e20b8a6d5440dc68486318aa6e77e"
+VERSION="1.2.0"
+SHA256="64f4e8deb6cd084fce1392261d1dd6e743b257b6bf8271e5d1eb5fc6ad703ca5"
 REPO="jonathanspiva/swift-netnewswire-mcp"
 TARBALL="netnewswire-mcp-$VERSION-macos-universal.tar.gz"
 

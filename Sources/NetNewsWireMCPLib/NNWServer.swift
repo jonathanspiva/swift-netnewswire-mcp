@@ -18,7 +18,7 @@ let serverInstructions = """
     - Every tool is read-only; nothing is ever modified.
     """
 
-public let serverVersion = "1.1.0"
+public let serverVersion = "1.2.0"
 
 /// Starts the stdio server. A `.failure` database (e.g. no Full Disk Access) still
 /// starts the server: tools are listed, and each call returns an actionable error,
