@@ -60,7 +60,7 @@ The binary will be at `.build/release/netnewswire-mcp`.
 ## Test
 
 ```bash
-swift test                          # 118 tests, no NetNewsWire install needed
+swift test                          # no NetNewsWire install needed
 swift test --enable-code-coverage   # ~98% line coverage
 ```
 
@@ -74,7 +74,23 @@ Disk Access, one extra test validates the queries against your live database.
 
 ### Claude Code
 
-`--scope user` makes it available in every project:
+Install it as a plugin. This repo is its own plugin marketplace:
+
+```bash
+claude plugin marketplace add jonathanspiva/swift-netnewswire-mcp
+claude plugin install netnewswire@netnewswire-mcp
+```
+
+No Swift toolchain is needed. On first launch the plugin downloads the universal
+binary from the matching GitHub release, checks it against a SHA-256 pinned in
+[`plugin/launch.sh`](plugin/launch.sh), and caches it in the plugin's data
+directory (`~/.claude/plugins/data/`). Its tools appear as
+`mcp__plugin_netnewswire_netnewswire__*`. If you previously added the server with
+`claude mcp add`, remove that one (`claude mcp remove netnewswire`) so the tools
+aren't listed twice.
+
+To use a local build instead, add the binary directly. `--scope user` makes it
+available in every project:
 
 ```bash
 claude mcp add --scope user netnewswire -- /path/to/.build/release/netnewswire-mcp

@@ -4,14 +4,34 @@
 
 ## Later
 - [ ] Raise the minimum to macOS 27 once GitHub ships a `macos-27` runner image (still none as of 2026-09-30; only an Xcode 27 image on macOS 26)
-- [ ] Package as a Claude Code plugin (`.claude-plugin/plugin.json` with `mcpServers`) if it gets shared beyond personal use
 - [ ] Sign/notarize the `.mcpb` binary and publish it as a GitHub release asset
 - [ ] Expose feeds/articles as MCP Resources (addressable by URI) in addition to tools
 - [ ] Cursor-based pagination for the list tools (large accounts)
+- [ ] Plugin launcher follow-ups. A 2026-09-30 survey found that the most common
+      pattern for compiled MCP servers (grafana/mcp-grafana, ory/lumen,
+      lukasmalkmus/moneymoney, etc.) is the one `plugin/launch.sh` already uses: a
+      launcher that downloads a version-pinned release asset into
+      `CLAUDE_PLUGIN_DATA`. Ours is stricter than all of them, since others check
+      the hash against the release's own checksums file or not at all. The
+      official marketplace ships no binaries (LSP plugins expect PATH; MCP plugins
+      use HTTP or `npx`/`uvx`/`bun`/`docker`). Worth adding:
+  - [ ] Prefer a `netnewswire-mcp` already on PATH (Homebrew/local build) before
+        downloading, like moneymoney
+  - [ ] SessionStart hook to pre-download in the background, so the first tool
+        call doesn't wait on the download
+  - [ ] Clear stderr hint when the download fails (offline, rate limit)
+  - [ ] Evaluate pointing `mcpServers` at the release `.mcpb` URL instead
+        (documented, but no one has confirmed native binaries keep their exec bit)
+- [ ] Cut v1.2.0 (sync warning + count fix, merged in #4) and bump the
+      plugin's `VERSION`/`SHA256` pin in the same PR (see CONTRIBUTING "Releasing")
 
 ## Never
 
 ## Done
+- [x] Claude Code plugin: repo is its own marketplace (`.claude-plugin/`); the MCP
+      command is `plugin/launch.sh`, which downloads the pinned release tarball on
+      first run, verifies its SHA-256, and caches it in `${CLAUDE_PLUGIN_DATA}`.
+      Validated (`--strict`) in CI; tested end to end with `claude --plugin-dir`
 - [x] Sync warning: list, search, and count tools add a note + `sync_warning` when
       the account DB was written in the last 60s (an iCloud sync on 2026-09-30
       wrote one batch over ~16s and a mid-sync query missed the newest rows)

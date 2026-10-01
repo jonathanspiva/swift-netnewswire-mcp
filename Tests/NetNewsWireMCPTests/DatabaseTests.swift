@@ -640,6 +640,38 @@ func testLiveDatabaseQueriesSucceed() throws {
     #expect(manifest["version"] as? String == serverVersion)
 }
 
+// MARK: - Claude Code Plugin
+
+private let repoRoot = URL(fileURLWithPath: #filePath)
+    .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+
+@Suite struct `Claude Code plugin` {
+    private func pluginManifest() throws -> [String: Any] {
+        let data = try Data(contentsOf: repoRoot.appendingPathComponent(".claude-plugin/plugin.json"))
+        return try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+    }
+
+    @Test func `plugin version matches the server`() throws {
+        #expect(try pluginManifest()["version"] as? String == serverVersion)
+    }
+
+    @Test func `launcher pins the server version and a full SHA-256`() throws {
+        let script = try String(contentsOf: repoRoot.appendingPathComponent("plugin/launch.sh"), encoding: .utf8)
+        #expect(script.contains("\nVERSION=\"\(serverVersion)\"\n"))
+        let sha = script.split(separator: "\n").first { $0.hasPrefix("SHA256=\"") }
+        let hex = try #require(sha).dropFirst("SHA256=\"".count).dropLast()
+        #expect(hex.count == 64 && hex.allSatisfy(\.isHexDigit), "SHA256 must be a 64-char hex digest")
+    }
+
+    @Test func `MCP command points at the executable launcher`() throws {
+        let servers = try #require(try pluginManifest()["mcpServers"] as? [String: [String: Any]])
+        let command = try #require(servers["netnewswire"]?["command"] as? String)
+        #expect(command == "${CLAUDE_PLUGIN_ROOT}/plugin/launch.sh")
+        let path = repoRoot.appendingPathComponent("plugin/launch.sh").path
+        #expect(FileManager.default.isExecutableFile(atPath: path))
+    }
+}
+
 // MARK: - Discovery Failures
 
 @Suite struct `Account discovery failures` {

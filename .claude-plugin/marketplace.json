@@ -1,0 +1,15 @@
+{
+  "name": "netnewswire-mcp",
+  "owner": {
+    "name": "Jonathan Spiva",
+    "url": "https://github.com/jonathanspiva"
+  },
+  "description": "NetNewsWire MCP server for Claude Code",
+  "plugins": [
+    {
+      "name": "netnewswire",
+      "source": "./",
+      "description": "Read-only access to your NetNewsWire feeds, articles, and search index (macOS)."
+    }
+  ]
+}

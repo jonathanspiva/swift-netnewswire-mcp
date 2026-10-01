@@ -1,0 +1,19 @@
+{
+  "name": "netnewswire",
+  "displayName": "NetNewsWire",
+  "version": "1.1.0",
+  "description": "Read-only access to your NetNewsWire feeds, articles, and search index (macOS).",
+  "author": {
+    "name": "Jonathan Spiva",
+    "url": "https://github.com/jonathanspiva"
+  },
+  "homepage": "https://github.com/jonathanspiva/swift-netnewswire-mcp",
+  "repository": "https://github.com/jonathanspiva/swift-netnewswire-mcp",
+  "license": "MIT",
+  "keywords": ["rss", "netnewswire", "feeds", "reader", "mcp"],
+  "mcpServers": {
+    "netnewswire": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/plugin/launch.sh"
+    }
+  }
+}
