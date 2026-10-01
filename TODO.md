@@ -7,6 +7,17 @@
 - [ ] Sign/notarize the `.mcpb` binary and publish it as a GitHub release asset
 - [ ] Expose feeds/articles as MCP Resources (addressable by URI) in addition to tools
 - [ ] Cursor-based pagination for the list tools (large accounts)
+- [ ] Revisit how the plugin ships its binary. Today `plugin/launch.sh` downloads
+      the pinned release tarball and checks a SHA-256. Survey of the official
+      marketplace (2026-09-30, 14 locally bundled MCP configs out of 315 plugins):
+      none ship a compiled binary. MCP plugins use remote HTTP (5) or runtime
+      runners (`bun` 4, `npx` 2, `uvx`, `docker`, `php`); LSP plugins (incl.
+      `swift-lsp`) expect the binary on PATH. Still to check: third-party plugins
+      with Go/Rust/Swift binaries. Alternatives to weigh: Homebrew tap + PATH
+      command, npm package with a per-arch binary, or a marketplace `archive`
+      source
+- [ ] After #4 merges, cut v1.2.0 (sync warning + count fix) and bump the
+      plugin's `VERSION`/`SHA256` pin in the same PR (see CONTRIBUTING "Releasing")
 
 ## Never
 
